@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Calculadora Geovana</title>
+</head>
+<body style="background-color: #243342;">
+    <header>
+        <nav>
+            <ul>
+                <a href="inicio.html"><li>Início</li></a>
+                <a href="bandeira.html"><li>Bandeiras</li></a>
+                <a href="dependencia.html"><li>Dependências</li></a>
+                <a href="tipos-dispositivos.html"><li>Tipos Dispositivos</li></a>
+                <a href="tipos-consumidores.html"><li>Tipos Consumidores</li></a>
+                <a href="unidades_consumidoras.html"><li>Unidades Consumidoras</li></a>
+                <a href="calculadora.html"><li>Calculadora </li></a>
+                <a href="calculadora2.html"><li>Calculadora Ge</li></a>
+            </ul>
+        </nav>
+    </header>
+    <main style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+        <section class="form-group2">
+            <label class="label" for="bandeira">Selecione a bandeira</label>
+            <select id="bandeira" class="select"></select>
+        </section>
+        <button class="total" onclick="calcularConsumoTotal()">Consumo Total da casa</button>
+        <div class="planta">
+            <div class="column1">
+                <div class="row1">
+                    <button class="dispositivo" onclick="abrirModal(18)">Quarto Pais</button>
+                </div>
+                <div class="row2" style="background-color: #243342;">
+                    <div class="column7">
+                        <button class="dispositivo" onclick="abrirModal(12)">Banheiro Pais</button>
+                    </div>
+                    <div class="column8">
+                        <button class="dispositivo" onclick="abrirModal(15)">Cozinha</button>
+                    </div>
+                </div>
+            </div>
+            <div class="column2">
+                <div class="row3">
+                    <div class="column4">
+                        <button class="dispositivo" onclick="abrirModal(11)">Quarto Gabriela</button>
+                    </div>
+                    <div class="column42">
+                        <button class="dispositivo" onclick="abrirModal(13)">Quarto Geovana</button>
+                    </div>
+                    <div class="column5">
+                        <button class="dispositivo" onclick="abrirModal(6)">Banheiro</button>
+                    </div>
+                </div>
+                <div class="row4">
+                    <button class="dispositivo" onclick="abrirModal(17)">Corredor</button>
+                </div>
+                <div class="row22">
+                    <button class="dispositivo" onclick="abrirModal(16)">Sala</button>
+                </div>
+            </div>
+            <div class="column1">
+                <div class="row11">
+                    <button class="dispositivo" onclick="abrirModal(14)">Quarto Gabriel</button>
+                </div>
+                <div class="row2">
+                    <button class="dispositivo" onclick="abrirModal(5)">Garagem</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal()">&times;</span>
+            <h2>Dispositivos</h2>
+            <ul id="lista-dispositivos"></ul>
+            <h3>Resumo do Cálculo</h3>
+            <p id="resumo"></p>
+        </div>
+    </div>
+
+<script>
+    let tarifas = {};   
+    function carregarBandeiras() {
+        fetch('http://127.0.0.1:8000/bandeiras')
+            .then(response => response.json())
+            .then(data => {
+                const bandeiraSelect = document.getElementById('bandeira');
+                data.bandeiras.forEach(bandeira => {
+                    const option = document.createElement('option');
+                    option.value = bandeira.tarifa;
+                    option.textContent = `${bandeira.nome} (R$ ${bandeira.tarifa.toFixed(4)} por kWh)`;
+                    bandeiraSelect.appendChild(option); 
+                    tarifas[bandeira.id] = bandeira.tarifa;
+                });
+            })
+            .catch(error => console.error('Erro ao carregar bandeiras:', error));
+    }
+    
+    function abrirModal(idComodo) {
+        fetch('http://127.0.0.1:8000/dependencias/unidade-consumidora/4')
+            .then(response => response.json())
+            .then(data => {
+                const comodo = data.dependencias.find(dep => dep.id === idComodo);
+                const lista = document.getElementById('lista-dispositivos');
+                lista.innerHTML = ''; // Limpa a lista
+
+                let consumoTotalDiario = 0; // Variável para somar o consumo do cômodo
+
+                if (comodo && comodo.dispositivos.length > 0) {
+                    comodo.dispositivos.forEach(dispositivo => {
+                        const item = document.createElement('li');
+                        item.textContent = `${dispositivo.nome} - Consumo: ${dispositivo.consumo} kWh, Uso diário: ${dispositivo.uso_diario} horas`;
+                        lista.appendChild(item);
+
+                        // Calcula o consumo total do cômodo
+                        const consumoDiario = dispositivo.consumo * dispositivo.uso_diario;
+                        consumoTotalDiario += consumoDiario;
+                    });
+                } else {
+                    const item = document.createElement('li');
+                    item.textContent = 'Nenhum dispositivo encontrado';
+                    lista.appendChild(item);
+                }
+
+                // Calcula o valor com base na tarifa da bandeira selecionada
+                const tarifaSelecionada = parseFloat(document.getElementById('bandeira').value);
+                const consumoMensal = consumoTotalDiario * 30;
+                const consumoAnual = consumoTotalDiario * 365;
+
+                const valorDiario = consumoTotalDiario * tarifaSelecionada;
+                const valorMensal = consumoMensal * tarifaSelecionada;
+                const valorAnual = consumoAnual * tarifaSelecionada;
+
+                // Exibe o resultado no modal
+                const resumo = document.getElementById('resumo');
+                resumo.innerHTML = `
+                    Consumo total diário do cômodo: ${consumoTotalDiario.toFixed(2)} kWh<br>
+                    Consumo total mensal do cômodo: ${consumoMensal.toFixed(2)} kWh<br>
+                    Consumo total anual do cômodo: ${consumoAnual.toFixed(2)} kWh<br><br>
+                    Valor diário: R$ ${valorDiario.toFixed(2)}<br>
+                    Valor mensal: R$ ${valorMensal.toFixed(2)}<br>
+                    Valor anual: R$ ${valorAnual.toFixed(2)}
+                `;
+
+                document.getElementById('modal').style.display = 'block';
+            })
+            .catch(error => console.error('Erro ao buscar dispositivos:', error));
+    }
+
+    function calcularConsumoTotal() {
+        fetch('http://127.0.0.1:8000/dependencias/unidade-consumidora/4')
+            .then(response => response.json())
+            .then(data => {
+                const resumo = document.getElementById('resumo');
+                const tarifaSelecionada = parseFloat(document.getElementById('bandeira').value);
+
+                let consumoTotalDiario = 0;
+
+                data.dependencias.forEach(comodo => {
+                    comodo.dispositivos.forEach(dispositivo => {
+                        const consumoDiario = dispositivo.consumo * dispositivo.uso_diario;
+                        consumoTotalDiario += consumoDiario;
+                    });
+                });
+
+                const consumoMensal = consumoTotalDiario * 30;
+                const consumoAnual = consumoTotalDiario * 365;
+
+                const valorDiario = consumoTotalDiario * tarifaSelecionada;
+                const valorMensal = consumoMensal * tarifaSelecionada;
+                const valorAnual = consumoAnual * tarifaSelecionada;
+
+                resumo.innerHTML = `
+                    Consumo total diário da casa: ${consumoTotalDiario.toFixed(2)} kWh<br>
+                    Consumo total mensal da casa: ${consumoMensal.toFixed(2)} kWh<br>
+                    Consumo total anual da casa: ${consumoAnual.toFixed(2)} kWh<br><br>
+                    Valor diário: R$ ${valorDiario.toFixed(2)}<br>
+                    Valor mensal: R$ ${valorMensal.toFixed(2)}<br>
+                    Valor anual: R$ ${valorAnual.toFixed(2)}
+                `;
+
+                document.getElementById('modal').style.display = 'block';
+            })
+            .catch(error => console.error('Erro ao calcular o consumo:', error));
+    }
+    
+    function fecharModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('modal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    window.onload = carregarBandeiras;
+</script>
+    
+
+    <style>
+        button {
+            outline: none;
+            transition: all 0.3s ease;
+            font-family:'Franklin Gothic Medium';
+        }
+        
+    </style>
+</body>
+</html>

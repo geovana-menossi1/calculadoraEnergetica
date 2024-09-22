@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Gerenciar Tipos de Consumidor</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <a href="inicio.html"><li>Início</li></a>
+                <a href="bandeira.html"><li>Bandeiras</li></a>
+                <a href="dependencia.html"><li>Dependências</li></a>
+                <a href="tipos-dispositivos.html"><li>Tipos Dispositivos</li></a>
+                <a href="tipos-consumidores.html"><li>Tipos Consumidores</li></a>
+                <a href="unidades_consumidoras.html"><li>Unidades Consumidoras</li></a>
+                <a href="calculadora.html"><li>Calculadora </li></a>
+                <a href="calculadora2.html"><li>Calculadora Ge</li></a>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Tipos de Consumidor</h1>
+        <button class="novo-item" id="addItemBtn">Adicionar Novo Tipo de Consumidor</button>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Valor KWh</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tipoConsumidorList">
+                <!-- Os tipos de consumidor serão inseridos aqui dinamicamente -->
+            </tbody>
+        </table>
+
+        <!-- Modal para adicionar e editar tipo de consumidor -->
+        <div id="addModal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="closeModal">&times;</span>
+                <h2 id="formTitle">Adicionar Novo Tipo de Consumidor</h2>
+                <form id="formTipoConsumidor">
+                    <input type="hidden" id="tipoConsumidorId">
+                    <div class="form-group">
+                        <label for="nome">Nome</label>
+                        <input type="text" id="nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="valor_kwh">Valor KWh</label>
+                        <input type="number" id="valor_kwh" step="0.01" required>
+                    </div>
+                    <button type="submit" class="adicionar">Salvar</button>
+                </form>
+            </div>
+        </div>
+    </main>
+    <script src="js/tipoConsumidor.js"></script>
+</body>
+</html>
